@@ -50,13 +50,13 @@ const TextEditor = () => {
         setQuill(q)
     }, [])
 
-    const textChangeHandler = (delta: Delta, source: string) => {
+    const textChangeHandler = (delta: Delta, _oldContents: Delta, source: string) => {
         if (source !== 'user') return
         socket?.emit('send-changes', delta)
     }
 
     const updateContentHandler = (data: Delta) => {
-        console.log({ data })
+        console.log({ broadcastReceived: data })
         quill?.updateContents(data)
     }
 

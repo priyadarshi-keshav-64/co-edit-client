@@ -1,21 +1,37 @@
-# Use Node.js as the base image
-FROM node:18
+# Use official Node.js image as the base
+FROM node:18-alpine AS builder
 
-# Set working directory inside the container
+# Set working directory
 WORKDIR /app
 
-# Copy package.json and install dependencies
+# Copy package.json and package-lock.json to leverage Docker cache
 COPY package.json package-lock.json ./
+
+# Install dependencies
 RUN npm install
 
-# Copy all source files
+# Copy the source code
 COPY . .
 
-# Build the React app with Vite
+# Build the Vite app
 RUN npm run build
 
-# Expose the port where Express will run
-EXPOSE 3000
+# ---- Production Stage ----
+FROM node:18-alpine AS runner
 
-# Start the Express.js server
-CMD ["npm", "start"]
+# Set working directory
+WORKDIR /app
+
+# Copy built files from the builder stage
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package.json ./
+
+# Set environment variable
+ENV NODE_ENV=production
+
+# Expose port
+EXPOSE 5173
+
+# Start Vite preview server
+CMD ["npm", "run", "preview"]
