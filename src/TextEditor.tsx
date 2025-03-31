@@ -1,3 +1,5 @@
+/// <reference types="vite/client" />
+
 import Quill, { Delta } from 'quill'
 import { useCallback, useEffect, useState } from 'react'
 import 'quill/dist/quill.snow.css'
@@ -62,7 +64,7 @@ const TextEditor = () => {
 
     // connect socket server
     useEffect(() => {
-        const s = io("http://localhost:5000")
+        const s = io(import.meta.env.VITE_API_BASE_URL)
         setSocket(s)
 
         return () => {
